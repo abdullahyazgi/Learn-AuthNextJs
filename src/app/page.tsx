@@ -1,8 +1,10 @@
+import { Hero } from "@/components/home/Hero";
+import { Stack } from "@mui/material";
 
 export default function Home() {
   return (
-    <div>
-      <p>Learn AuthNext.js</p>
-    </div>
+    <Stack>
+      <Hero/>
+    </Stack>
   );
 }

@@ -1,23 +1,20 @@
-import Link from 'next/link';
-import React from 'react'
-import LoginForm from '@/app/(auth)/login/LoginForm';
-import { Button } from '@mui/material';
+import React from "react";
+import LoginForm from "@/app/(auth)/login/LoginForm";
+import { Box, Typography, Link } from "@mui/material";
 
 const loginPage = () => {
   return (
-    <section className="mt-7">
-      <div>
-        <h1>Sign in</h1>
-      </div>
+    <Box component="section" className="mt-7">
+      <Box component="div">
+        <Typography component="h1">Sign in</Typography>
+      </Box>
       <LoginForm />
-      <p>
+      <Typography component="p">
         Do not have an account?
-        <Button variant='text' color="primary">
-          <Link href="/signup">Sign up</Link>
-        </Button>
-      </p>
-    </section>
+        <Link href="/signup"> Sign up</Link>
+      </Typography>
+    </Box>
   );
-}
+};
 
 export default loginPage;

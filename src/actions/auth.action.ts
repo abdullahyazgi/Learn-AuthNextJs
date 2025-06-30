@@ -35,17 +35,22 @@ export const loginAction = async (data: z.infer<typeof LoginSchema>) => {
 export const signupAction = async (data: z.infer<typeof SignupSchema>) => {
   const validation = SignupSchema.safeParse(data);
   if (!validation.success) return { success: false, message: "Invalid credentials" };
-
   const { name, email, password } = validation.data;
-  const user = await prisma.user.findUnique({ where: {email} });
-  if(user) return {success: false, message: "User already exist"};
-  const salt = await bcrybt.genSalt(10);
-  const hashedPassword = await bcrybt.hash(password, salt);
-  await prisma.user.create({
-    data: {name, email, password: hashedPassword}
-  });
+
+  try {
+    const user = await prisma.user.findUnique({ where: { email } });
+    if (user) return { success: false, message: "User already exist" };
+    const salt = await bcrybt.genSalt(10);
+    const hashedPassword = await bcrybt.hash(password, salt);
+    await prisma.user.create({
+      data: { name, email, password: hashedPassword },
+    });
+    return { success: true, message: "Signed up successfuly" };
+  } catch (error) {
+    console.log(error);
+    return { success: false, message: "Somthing went wrong, please try again" };
+  }
   
-  return { success: true, message: "Sign up successfuly" };
 };
 
 // signOut

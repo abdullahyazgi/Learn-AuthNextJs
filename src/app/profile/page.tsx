@@ -9,6 +9,7 @@ const ProfilePage = async () => {
       <Typography component="div">
         {session?.user && (
           <>
+            <Typography variant="body1" component="p">{JSON.stringify(session)}</Typography>
             <Typography component="h1" className="text-3xl font-bold mb-7">
               Welcome {session.user.name} to your profile
             </Typography>

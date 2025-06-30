@@ -17,19 +17,17 @@ const LoginForm = () => {
   const [loading, setLoading] = useState(false);
 
   const [serverError, setserverError] = useState("");
-  const [serverSuccess, setserverSuccess] = useState("");
   const formSubmitHandler = (e: React.FormEvent) => {
     e.preventDefault();
     const validation = LoginSchema.safeParse({ email, password });
     if (!validation.success)
       return setClientError(validation.error.errors[0].message);
+
+    setLoading(true);
     loginAction({ email, password }).then((result) => {
-      if (result?.error) setserverError(result.error);
-      if (result?.success) setserverSuccess(result.success);
+      if(!result.success) setserverError(result.message);
+      setLoading(false);
     });
-    setEmail("");
-    setPassword("");
-    setClientError("");
   };
 
   return (
@@ -50,6 +48,7 @@ const LoginForm = () => {
         variant="outlined"
         value={email}
         onChange={(e) => setEmail(e.target.value)}
+        disabled={loading}
       />
       <TextField
         id="password"
@@ -58,12 +57,12 @@ const LoginForm = () => {
         variant="outlined"
         value={password}
         onChange={(e) => setPassword(e.target.value)}
+        disabled={loading}
       />
       {clientError ||
         (serverError && (
           <Alert type="error" message={clientError || serverError} />
         ))}
-      {serverSuccess && <Alert type="success" message={serverSuccess} />}
       <Button disabled={loading} variant="contained" type="submit">
         {loading ? <Spinner /> : <>Sign in</>}
       </Button>

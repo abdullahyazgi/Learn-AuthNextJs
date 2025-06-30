@@ -1,18 +1,19 @@
 "use client";
 import { Box, Button, ButtonGroup, IconButton, TextField } from "@mui/material";
-import Link from "next/link";
 import { FcGoogle } from "react-icons/fc";
 import { FaGithub } from "react-icons/fa";
 import { useState } from "react";
 import { signupAction } from "@/actions/auth.action";
 import { SignupSchema } from "@/utils/validaitionSchemas";
 import Alert from "@/components/Alert";
+import Spinner from "@/components/Spinner";
 
-const SignupFom = () => {
+const SignupForm = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
   const [clientError, setClientError] = useState("");
+  const [loading, setLoading] = useState(false);
   const [serverError, setserverError] = useState("");
   const [serverSuccess, setserverSuccess] = useState("");
   const formSubmitHandler = (e: React.FormEvent) => {
@@ -21,14 +22,23 @@ const SignupFom = () => {
     const validation = SignupSchema.safeParse(user);
     if (!validation.success)
       return setClientError(validation.error.errors[0].message);
+
+    setLoading(true);
     signupAction(user).then((result) => {
-      if (result?.error) setserverError(result.error);
-      if (result?.success) setserverSuccess(result.success);
+      if (result.success) {
+        setClientError("");
+        setserverError("");
+        setName("");
+        setEmail("");
+        setPassword("");
+        setserverSuccess(result.message);
+      }
+      if (!result.success) {
+        setserverSuccess("");
+        setserverError(result.message);
+      }
+      setLoading(false);
     });
-    setName("");
-    setEmail("");
-    setPassword("");
-    setClientError("");
   };
 
   return (
@@ -66,8 +76,8 @@ const SignupFom = () => {
           <Alert type="error" message={clientError || serverError} />
         ))}
       {serverSuccess && <Alert type="success" message={serverSuccess} />}
-      <Button variant="contained" type="submit">
-        <Link href="#">Sign up</Link>
+      <Button disabled={loading} variant="contained" type="submit">
+        {loading ? <Spinner /> : <>Sign up</>}
       </Button>
       <ButtonGroup>
         <IconButton>
@@ -81,4 +91,4 @@ const SignupFom = () => {
   );
 };
 
-export default SignupFom;
+export default SignupForm;

@@ -1,12 +1,11 @@
 "use client";
-import { Box, Button, ButtonGroup, IconButton, TextField } from "@mui/material";
-import { FcGoogle } from "react-icons/fc";
-import { FaGithub } from "react-icons/fa";
+import { Box, Button, TextField } from "@mui/material";
 import { useState } from "react";
 import { LoginSchema } from "@/utils/validaitionSchemas";
 import Alert from "@/components/Alert";
 import { loginAction } from "@/actions/auth.action";
 import Spinner from "@/components/Spinner";
+import SocialProviders from "@/components/SocialProviders";
 
 const LoginForm = () => {
   const [email, setEmail] = useState("");
@@ -66,14 +65,7 @@ const LoginForm = () => {
       <Button disabled={loading} variant="contained" type="submit">
         {loading ? <Spinner /> : <>Sign in</>}
       </Button>
-      <ButtonGroup>
-        <IconButton>
-          <FcGoogle />
-        </IconButton>
-        <IconButton>
-          <FaGithub />
-        </IconButton>
-      </ButtonGroup>
+      <SocialProviders />
     </Box>
   );
 };

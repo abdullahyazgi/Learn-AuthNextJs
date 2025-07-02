@@ -15,7 +15,7 @@ const SocialProviders = () => {
   return (
     <>
       <ButtonGroup>
-        <IconButton>
+        <IconButton onClick={() => socialLoginHandler("google")}>
           <FcGoogle />
         </IconButton>
         <IconButton onClick={() => socialLoginHandler("github")}>

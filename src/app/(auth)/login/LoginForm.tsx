@@ -16,6 +16,7 @@ const LoginForm = () => {
   const [loading, setLoading] = useState(false);
 
   const [serverError, setserverError] = useState("");
+  const [serverSuccess, setserverSuccess] = useState("");
   const formSubmitHandler = (e: React.FormEvent) => {
     e.preventDefault();
     const validation = LoginSchema.safeParse({ email, password });
@@ -24,6 +25,13 @@ const LoginForm = () => {
 
     setLoading(true);
     loginAction({ email, password }).then((result) => {
+      if(result.success) {
+        setClientError("");
+        setserverError("");
+        setEmail("");
+        setPassword("");
+        setserverSuccess(result.message);
+      }
       if(!result.success) setserverError(result.message);
       setLoading(false);
     });
@@ -62,6 +70,7 @@ const LoginForm = () => {
         (serverError && (
           <Alert type="error" message={clientError || serverError} />
         ))}
+        {serverSuccess && <Alert type="success" message={serverSuccess} />}
       <Button disabled={loading} variant="contained" type="submit">
         {loading ? <Spinner /> : <>Sign in</>}
       </Button>

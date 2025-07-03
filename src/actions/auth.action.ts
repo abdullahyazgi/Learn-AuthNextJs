@@ -7,46 +7,52 @@ import { signIn } from "@/auth";
 import { AuthError } from "next-auth";
 import { signOut } from "@/auth";
 import { generateVerificationToken } from "@/utils/generateToken";
+import { sendVerificationToken } from "@/utils/mail";
 
 // loginAction
 export const loginAction = async (data: z.infer<typeof LoginSchema>) => {
   const validation = LoginSchema.safeParse(data);
-  if (!validation.success) return {success: false, message: "Invalid credentials" };
-  
-  const { email, password } = validation.data;
-
-  const user = await prisma.user.findUnique({ where: { email } });
-  if(!user || !user.email || !user.password)
+  if (!validation.success)
     return { success: false, message: "Invalid credentials" };
 
-  if(!user.emailVerified) {
-    const verificationToken = await generateVerificationToken(email);
-    // sent email here
-
-    return { success: true, message: "Email sent, verify your email" };
-  }
+  const { email, password } = validation.data;
 
   try {
-    await signIn("credentials", { email, password, redirectTo: "/profile" })
+    const user = await prisma.user.findUnique({ where: { email } });
+    if (!user || !user.email || !user.password)
+      return { success: false, message: "Invalid credentials" };
+
+    if (!user.emailVerified) {
+      const verificationToken = await generateVerificationToken(email);
+      await sendVerificationToken(
+        verificationToken.email,
+        verificationToken.token
+      );
+
+      return { success: true, message: "Email sent, verify your email" };
+    }
+
+    await signIn("credentials", { email, password, redirectTo: "/profile" });
   } catch (error) {
-    if(error instanceof AuthError) {
-      switch(error.type){
+    if (error instanceof AuthError) {
+      switch (error.type) {
         case "CredentialsSignin":
           return { success: false, message: "Invalid email or password" };
         default:
-          return {success: false, message: "Somthing went wrong"};
+          return { success: false, message: "Somthing went wrong" };
       }
     }
     throw error;
   }
 
-  return { success:true, message: "Logged in successfuly" };
+  return { success: true, message: "Logged in successfuly" };
 };
 
 // signupAction
 export const signupAction = async (data: z.infer<typeof SignupSchema>) => {
   const validation = SignupSchema.safeParse(data);
-  if (!validation.success) return { success: false, message: "Invalid credentials" };
+  if (!validation.success)
+    return { success: false, message: "Invalid credentials" };
   const { name, email, password } = validation.data;
 
   try {
@@ -58,17 +64,19 @@ export const signupAction = async (data: z.infer<typeof SignupSchema>) => {
       data: { name, email, password: hashedPassword },
     });
     const verificationToken = await generateVerificationToken(email);
-    // sent email here
+    await sendVerificationToken(
+      verificationToken.email,
+      verificationToken.token
+    );
 
     return { success: true, message: "Email sent, verify your email" };
   } catch (error) {
     console.log(error);
     return { success: false, message: "Somthing went wrong, please try again" };
   }
-  
 };
 
 // signOut
 export const signOutAction = async () => {
   await signOut();
-}
+};
